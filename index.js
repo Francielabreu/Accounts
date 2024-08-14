@@ -173,6 +173,61 @@ function getAccountBalance() {
         .catch(err => console.log(err))
 }
 
+function withdraw(){
+    inquirer.prompt([
+        {   name:'accountName',
+            message: 'Qual o nome da sua conta?'
+        }
+
+    ]).then((answer) => {
+        const accountName = answer['accountName']
+        if (!checkAccount(accountName)) {
+            return withdraw()
+        }
+            inquirer.prompt([
+                {
+                    name:'amount',
+                    message:'Quanto você deseja sacar?'
+                }
+            ]).then((answer) => {
+
+                const amount = answer['amount']
+                removeAmount(accountName,amount)
+                
+
+            }).catch(err => console.log(err))
+
+    }).catch(err => console.log(err))
+}
+
+function removeAmount(accountName,amount){
+    const accountData = getAccount(accountName)
+
+    if (!amount) {
+        console.log(chalk.bgRed.black('Operação inválida, tente novamente mais tarde!'))
+        return withdraw()
+    }
+
+    if (accountData.balance < amount) {
+        console.log(chalk.bgRed.black('Valor indisponivel!'))
+        return withdraw()
+    }
+
+    const accountBalance = accountData.balance  
+    const newAccountBalance = accountBalance - amount
+
+    fs.writeFileSync(  
+        'accounts/' + accountName + '.json',
+        '{"balance": ' + newAccountBalance + '}',
+        function(err) {
+            console.log(err)
+        }
+    )
+    console.log(chalk.green('Saque realizado com sucesso!'))
+    console.log(chalk.green('Seu novo saldo é de: ' + newAccountBalance))
+    return newAccountBalance
+    
+}
 
 
 
