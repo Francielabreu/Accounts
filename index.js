@@ -3,8 +3,8 @@ const inquirer = require('inquirer');
 const fs = require('fs');
 const { type } = require('os');
 
-operetion();
-function operetion() {
+operation();
+function operation() {
     inquirer.prompt([{
             type: 'list',
             name: 'action',
@@ -25,11 +25,11 @@ function operetion() {
                 createAccount()
             }else if (action == 'Depositar') {
                 deposit()
-            } else if (action == 'Consultar Saldo') {
+            }else if (action == 'Consultar Saldo') {
                 getAccountBalance()
-            } else if (action == 'Sacar') {
+            }else if (action == 'Sacar') {
                 withdraw()
-            } else if (action == 'Sair') {
+            }else if (action == 'Sair') {
                 console.log(chalk.bgBlue.black('Obrigado por usar o Accounts.'))
                 process.exit()
             }
@@ -71,7 +71,7 @@ function buildAccount(){
         })
 
         console.log(chalk.green('Conta criada com sucesso!'))
-        operetion()
+        operation()
     })
     .catch(err => console.log(err))
 }
@@ -103,7 +103,7 @@ function deposit(){
             const amount = answer['amount']
 
             addAmount(accountName, amount)
-            operetion()
+            operation()
         })
         .catch(err => console.log(err))
         
@@ -149,5 +149,30 @@ function getAccount(accountName) {
     const accountJSON = fs.readFileSync('accounts/' + accountName + '.json', 'utf8')
     return JSON.parse(accountJSON)
 }
+
+//show balance
+function getAccountBalance() {
+    inquirer.prompt([
+        {
+            name: 'accountName',
+            message: 'Qual o nome da sua conta?'
+        }
+    ])
+    .then((answer) => {
+        const accountName = answer['accountName']
+
+        //verifiy if account exists 
+        if (!checkAccount(accountName)) {
+            return getAccountBalance()
+        }
+
+        const accountData = getAccount(accountName)
+            console.log(chalk.bgBlue.black('Ola, o saldo da sua conta é de R$ :' + accountData.balance))
+            operation()
+        })
+        .catch(err => console.log(err))
+}
+
+
 
 
